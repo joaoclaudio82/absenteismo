@@ -26,7 +26,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     brier_score_loss, classification_report, confusion_matrix, roc_auc_score)
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupShuffleSplit, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -50,8 +50,31 @@ def _preprocessador() -> ColumnTransformer:
 def treinar(df: pd.DataFrame, seed: int = 42) -> dict:
     X = df[NUMERICAS + BINARIAS + CATEGORICAS]
     y = df[ALVO]
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y, test_size=0.25, random_state=seed, stratify=y)
+
+    if "id_paciente" in df.columns:
+        # Um mesmo paciente nao pode aparecer no treino e no teste, pois isso
+        # produziria uma avaliacao otimista em bases com consultas repetidas.
+        splitter = GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=seed)
+        idx_tr, idx_te = next(splitter.split(X, y, groups=df["id_paciente"]))
+        X_tr, X_te = X.iloc[idx_tr], X.iloc[idx_te]
+        y_tr, y_te = y.iloc[idx_tr], y.iloc[idx_te]
+        pacientes_tr = set(df.iloc[idx_tr]["id_paciente"])
+        pacientes_te = set(df.iloc[idx_te]["id_paciente"])
+        split_info = {
+            "estrategia": "por_paciente",
+            "n_pacientes_treino": len(pacientes_tr),
+            "n_pacientes_teste": len(pacientes_te),
+            "pacientes_em_comum": len(pacientes_tr & pacientes_te),
+        }
+    else:
+        X_tr, X_te, y_tr, y_te = train_test_split(
+            X, y, test_size=0.25, random_state=seed, stratify=y)
+        split_info = {
+            "estrategia": "estratificado_por_agendamento",
+            "n_pacientes_treino": None,
+            "n_pacientes_teste": None,
+            "pacientes_em_comum": None,
+        }
 
     pre = _preprocessador()
 
@@ -80,6 +103,7 @@ def treinar(df: pd.DataFrame, seed: int = 42) -> dict:
         }
 
     return {"logit": logit, "gb": gb, "metricas": resultados,
+            "split_info": split_info,
             "X_te": X_te, "y_te": y_te}
 
 
