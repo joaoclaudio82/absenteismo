@@ -23,6 +23,7 @@ def treinar_e_salvar(dados_csv: str, seed: int = 42, caminho: str = MODELO_PATH)
         "gb": r["gb"],
         "logit": r["logit"],
         "metricas": r["metricas"],
+        "split_info": r["split_info"],
         "coeficientes": coeficientes_logit(r["logit"]),
     }
     os.makedirs(os.path.dirname(caminho), exist_ok=True)
