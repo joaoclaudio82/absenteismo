@@ -90,8 +90,10 @@ O restante do pipeline nao muda.
 
 ## Parametros principais
 
-- `--lam`: penalizacao por atraso esperado (secao 10.8). Maior = agenda mais
-  conservadora; menor = agenda mais agressiva em ocupacao.
+- `--lam`: custo atribuido a cada minuto de atraso esperado (secao 10.8).
+  Maior = agenda mais conservadora; menor = agenda mais agressiva em ocupacao.
+  A capacidade nominal marca o ponto sem atraso e `capacidade + overbooking`
+  permanece como limite maximo obrigatorio.
 - `--orcamento`: limite de custo das confirmacoes ativas por dia (secao 11).
 - Capacidade e overbooking por horario/modalidade: `montar_capacidades` em
   `src/pipeline.py`.
