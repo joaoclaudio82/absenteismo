@@ -70,6 +70,30 @@ def test_agenda_respeita_alocacao_unica_e_overbooking():
         assert row["ocup_bruta_min"] <= row["capacidade_min"] + row["overbooking_min"] + 1e-6
 
 
+def test_lambda_controla_tradeoff_entre_receita_e_atraso():
+    pac = pd.DataFrame({
+        "id_agendamento": [1, 2],
+        "duracao_min": [60, 60],
+        "prob_falta": [0.0, 0.0],
+        "receita_estimada": [100.0, 100.0],
+        "modalidade": ["tomografia", "tomografia"],
+    })
+    horarios = ["08:00"]
+    cap = {("08:00", "tomografia"): 60}
+    ob = {("08:00", "tomografia"): 60}
+
+    agressiva = otimizar_agenda(pac, horarios, cap, ob, lam=0.0)
+    conservadora = otimizar_agenda(pac, horarios, cap, ob, lam=2.0)
+
+    assert agressiva.status == "Optimal"
+    assert conservadora.status == "Optimal"
+    assert len(agressiva.alocacoes) == 2
+    assert agressiva.atraso_total == pytest.approx(60.0)
+    assert len(conservadora.alocacoes) == 1
+    assert conservadora.atraso_total == pytest.approx(0.0)
+    assert agressiva.receita_esperada > conservadora.receita_esperada
+
+
 def test_paciente_so_vai_para_sua_modalidade():
     pac = pd.DataFrame({
         "id_agendamento": [1, 2],
