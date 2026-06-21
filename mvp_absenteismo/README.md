@@ -88,6 +88,10 @@ reais, basta entregar um CSV com as mesmas colunas usadas em
 `modelo_preditivo.py` (`NUMERICAS`, `BINARIAS`, `CATEGORICAS` e `faltou`).
 O restante do pipeline nao muda.
 
+Quando a coluna `id_paciente` esta presente, a avaliacao separa pacientes
+entre treino e teste. Assim, consultas da mesma pessoa nao vazam para os dois
+conjuntos e as metricas representam melhor o desempenho em pacientes novos.
+
 ## Parametros principais
 
 - `--lam`: penalizacao por atraso esperado (secao 10.8). Maior = agenda mais
