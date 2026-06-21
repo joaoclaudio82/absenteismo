@@ -39,6 +39,10 @@ Mapeamento direto com as secoes da proposta:
 pip install -r requirements.txt
 ```
 
+O projeto usa o solver HiGHS por padrao, compativel com Linux, Windows e
+macOS Apple Silicon. CBC continua disponivel como alternativa quando estiver
+instalado no ambiente.
+
 ## Execucao
 
 ```bash
