@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 import pulp
 
+from .solver import resolver
+
 
 @dataclass
 class ResultadoAgenda:
@@ -83,7 +85,7 @@ def otimizar_agenda(
         prob += ocup_bruta <= C + O                # (10.7)
         prob += A[(t, m)] >= ocup_esp - C          # (10.8)
 
-    prob.solve(pulp.PULP_CBC_CMD(msg=False))
+    resolver(prob)
 
     linhas = [{"id_agendamento": i, "horario": t, "modalidade": m}
               for (i, t, m) in x if (x[(i, t, m)].value() or 0) > 0.5]
