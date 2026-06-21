@@ -8,9 +8,14 @@ maximizando receita esperada, descontando penalizacao por atraso esperado:
 
 sujeito a:
     (10.5) alocacao unica:      sum_{t,m} x_{itm} <= 1            para todo i
-    (10.6) capacidade esperada: sum_i d_i (1-p_i) x_{itm} <= C_tm  para todo t,m
+    (10.6) capacidade nominal:  C_tm e o limite sem atraso esperado
     (10.7) overbooking:         sum_i d_i x_{itm} <= C_tm + O_tm   para todo t,m
     (10.8) atraso esperado:     A_tm >= sum_i d_i(1-p_i) x_{itm} - C_tm
+
+A capacidade nominal nao e uma restricao rigida sobre a ocupacao esperada:
+quando ela e ultrapassada, o excesso e representado por A_tm e penalizado na
+funcao objetivo. O limite rigido continua sendo capacidade + overbooking.
+Assim, lambda controla de fato o equilibrio entre receita e risco de atraso.
 
 Apenas pacientes compativeis com a modalidade m podem ser alocados.
 """
@@ -79,7 +84,9 @@ def otimizar_agenda(
                               for i in I if (i, t, m) in x)
         ocup_bruta = pulp.lpSum(d[i] * x[(i, t, m)]
                                 for i in I if (i, t, m) in x)
-        prob += ocup_esp <= C                      # (10.6)
+        # A capacidade nominal marca o ponto a partir do qual existe atraso
+        # esperado. Nao deve ser tambem uma restricao rigida, pois isso
+        # obrigaria A a zero e tornaria o parametro lambda inoperante.
         prob += ocup_bruta <= C + O                # (10.7)
         prob += A[(t, m)] >= ocup_esp - C          # (10.8)
 
