@@ -36,6 +36,14 @@ def test_modelo_aprende_acima_do_acaso(df):
     assert r["metricas"]["regressao_logistica"]["auc_roc"] > 0.65
 
 
+def test_validacao_separa_pacientes_entre_treino_e_teste(df):
+    r = treinar(df, seed=1)
+    assert r["split_info"]["estrategia"] == "por_paciente"
+    assert r["split_info"]["pacientes_em_comum"] == 0
+    assert r["split_info"]["n_pacientes_treino"] > 0
+    assert r["split_info"]["n_pacientes_teste"] > 0
+
+
 def test_confirmacao_respeita_orcamento():
     rng = np.random.default_rng(0)
     receita = rng.uniform(100, 900, 60)
