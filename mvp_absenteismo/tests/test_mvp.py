@@ -23,6 +23,18 @@ def test_gerador_colunas_e_alvo(df):
     assert 0.15 < df["faltou"].mean() < 0.60  # taxa plausivel
 
 
+def test_gerador_preserva_desfechos_completos(df):
+    desfechos_validos = {
+        "compareceu",
+        "faltou_sem_aviso",
+        "cancelou_em_cima_hora",
+        "cancelou_antecedencia",
+        "remarcou",
+    }
+    assert set(df["desfecho"].unique()) <= desfechos_validos
+    assert not df["desfecho"].str.endswith(("_sem", "_e", "_a")).any()
+
+
 def test_faixas_de_risco_cobrem_tudo():
     p = np.array([0.05, 0.20, 0.45, 0.75])
     r = classificar_risco(p)

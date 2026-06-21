@@ -70,7 +70,9 @@ def gerar(n: int, seed: int = 42) -> pd.DataFrame:
     faltou = (rng.random(n) < p_real).astype(int)
 
     # desfecho detalhado
-    desfecho = np.where(faltou == 0, "compareceu", "")
+    # dtype=object evita que o NumPy fixe o tamanho do texto com base em
+    # "compareceu" e trunque desfechos mais longos nas atribuicoes seguintes.
+    desfecho = np.full(n, "compareceu", dtype=object)
     faltantes = np.where(faltou == 1)[0]
     desfecho[faltantes] = rng.choice(
         ["faltou_sem_aviso", "cancelou_em_cima_hora", "cancelou_antecedencia", "remarcou"],
