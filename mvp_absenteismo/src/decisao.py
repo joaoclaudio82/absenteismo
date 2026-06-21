@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 import pulp
 
+from .solver import resolver
+
 # Tabela 1 da proposta: limites e acoes por faixa de risco
 FAIXAS = [
     (0.00, 0.15, "baixo",     "Lembrete automatico simples (WhatsApp/SMS)."),
@@ -68,7 +70,7 @@ def otimizar_confirmacoes(
         if ganho[i] <= 0:
             prob += z[i] == 0
 
-    prob.solve(pulp.PULP_CBC_CMD(msg=False))
+    resolver(prob)
 
     selecionados = np.array([int(z[i].value() or 0) for i in range(n)], dtype=int)
     ganho_total = float(sum(ganho[i] * selecionados[i] for i in range(n)))
